@@ -73,119 +73,97 @@ fn get_xdg_val_fallback [x]{
 }
 
 fn get_xdg_cache_home {
-  if (!=s $E:XDG_CACHE_HOME '') {
-    put $E:XDG_CACHE_HOME
-  } else {
-    put (get_xdg_val_fallback 'XDG_CACHE_HOME')
+  if (==s $E:XDG_CACHE_HOME '') {
+    E:XDG_CACHE_HOME = (get_xdg_val_fallback 'XDG_CACHE_HOME')
   }
 }
 
 fn get_xdg_config_home {
-  if (!=s $E:XDG_CONFIG_HOME '') {
-    put $E:XDG_CONFIG_HOME
-  } else {
-    put (get_xdg_val_fallback 'XDG_CONFIG_HOME')
+  if (==s $E:XDG_CONFIG_HOME '') {
+    E:XDG_CONFIG_HOME = (get_xdg_val_fallback 'XDG_CONFIG_HOME')
   }
 }
 
 fn get_xdg_data_home {
-  if (!=s $E:XDG_DATA_HOME '') {
-    put $E:XDG_DATA_HOME
-  } else {
-    put (get_xdg_val_fallback 'XDG_DATA_HOME')
+  if (==s $E:XDG_DATA_HOME '') {
+    E:XDG_DATA_HOME = (get_xdg_val_fallback 'XDG_DATA_HOME')
   }
 }
 
 fn get_xdg_desktop_dir {
-  if (!=s $E:XDG_DESKTOP_DIR '') {
-    put $E:XDG_DESKTOP_DIR
-  } else {
-    put (get_xdg_val_fallback 'XDG_DESKTOP_DIR')
+  if (==s $E:XDG_DESKTOP_DIR '') {
+    E:XDG_DESKTOP_DIR = (get_xdg_val_fallback 'XDG_DESKTOP_DIR')
   }
 }
 
 fn get_xdg_documents_dir {
-  if (!=s $E:XDG_DOCUMENTS_DIR '') {
-    put $E:XDG_DOCUMENTS_DIR
-  } else {
-    put (get_xdg_val_fallback 'XDG_DOCUMENTS_DIR')
+  if (==s $E:XDG_DOCUMENTS_DIR '') {
+    E:XDG_DOCUMENTS_DIR = (get_xdg_val_fallback 'XDG_DOCUMENTS_DIR')
   }
 }
 
 fn get_xdg_download_dir {
-  if (!=s $E:XDG_DOWNLOAD_DIR '') {
-    put $E:XDG_DOWNLOAD_DIR
-  } else {
-    put (get_xdg_val_fallback 'XDG_DOWNLOAD_DIR')
+  if (==s $E:XDG_DOWNLOAD_DIR '') {
+    E:XDG_DOWNLOAD_DIR = (get_xdg_val_fallback 'XDG_DOWNLOAD_DIR')
   }
 }
 
 fn get_xdg_music_dir {
-  if (!=s $E:XDG_MUSIC_DIR '') {
-    put $E:XDG_MUSIC_DIR
-  } else {
-    put (get_xdg_val_fallback 'XDG_MUSIC_DIR')
+  if (==s $E:XDG_MUSIC_DIR '') {
+    E:XDG_MUSIC_DIR = (get_xdg_val_fallback 'XDG_MUSIC_DIR')
   }
 }
 
 fn get_xdg_pictures_dir {
-  if (!=s $E:XDG_PICTURES_DIR '') {
-    put $E:XDG_PICTURES_DIR
-  } else {
-    put (get_xdg_val_fallback 'XDG_PICTURES_DIR')
+  if (==s $E:XDG_PICTURES_DIR '') {
+    E:XDG_PICTURES_DIR = (get_xdg_val_fallback 'XDG_PICTURES_DIR')
   }
 }
 
 fn get_xdg_prefix_home {
-  if (!=s $E:XDG_PREFIX_HOME '') {
-    put $E:XDG_PREFIX_HOME
-  } else {
-    put (get_xdg_val_fallback 'XDG_PREFIX_HOME')
+  if (==s $E:XDG_PREFIX_HOME '') {
+    E:XDG_PREFIX_HOME = (get_xdg_val_fallback 'XDG_PREFIX_HOME')
   }
 }
 
 fn get_xdg_publicshare_dir {
-  if (!=s $E:XDG_PUBLICSHARE_DIR '') {
-    put $E:XDG_PUBLICSHARE_DIR
-  } else {
+  if (==s $E:XDG_PUBLICSHARE_DIR '') {
     put (get_xdg_val_fallback 'XDG_PUBLICSHARE_DIR')
   }
 }
 
 fn get_xdg_runtime_dir {
-  if (!=s $E:XDG_RUNTIME_DIR '') {
-    put $E:XDG_RUNTIME_DIR
-  } else {
-    put (get_xdg_val_fallback 'XDG_RUNTIME_DIR')
+  if (==s $E:XDG_RUNTIME_DIR '') {
+    E:XDG_RUNTIME_DIR = (get_xdg_val_fallback 'XDG_RUNTIME_DIR')
   }
 }
 
 fn get_xdg_templates_dir {
-  if (!=s $E:XDG_TEMPLATES_DIR '') {
-    put $E:XDG_TEMPLATES_DIR
-  } else {
-    put (get_xdg_val_fallback 'XDG_TEMPLATES_DIR')
+  if (==s $E:XDG_TEMPLATES_DIR '') {
+    E:XDG_TEMPLATES_DIR = (get_xdg_val_fallback 'XDG_TEMPLATES_DIR')
   }
 }
 
 fn get_xdg_videos_dir {
-  if (!=s $E:XDG_VIDEOS_DIR '') {
-    put $E:XDG_VIDEOS_DIR
-  } else {
-    put (get_xdg_val_fallback 'XDG_VIDEOS_DIR')
+  if (==s $E:XDG_VIDEOS_DIR '') {
+    E:XDG_VIDEOS_DIR = (get_xdg_val_fallback 'XDG_VIDEOS_DIR')
   }
 }
 
-E:XDG_CACHE_HOME = (get_xdg_cache_home)
-E:XDG_CONFIG_HOME = (get_xdg_config_home)
-E:XDG_DATA_HOME = (get_xdg_data_home)
-E:XDG_DESKTOP_DIR = (get_xdg_desktop_dir)
-E:XDG_DOCUMENTS_DIR = (get_xdg_documents_dir)
-E:XDG_DOWNLOAD_DIR = (get_xdg_download_dir)
-E:XDG_MUSIC_DIR = (get_xdg_music_dir)
-E:XDG_PICTURES_DIR = (get_xdg_pictures_dir)
-E:XDG_PREFIX_HOME = (get_xdg_prefix_home)
-E:XDG_PUBLICSHARE_DIR = (get_xdg_publicshare_dir)
-E:XDG_RUNTIME_DIR = (get_xdg_runtime_dir)
-E:XDG_TEMPLATES_DIR = (get_xdg_templates_dir)
-E:XDG_VIDEOS_DIR = (get_xdg_videos_dir)
+fn init {
+  get_xdg_cache_home
+  get_xdg_config_home
+  get_xdg_data_home
+  get_xdg_desktop_dir
+  get_xdg_documents_dir
+  get_xdg_download_dir
+  get_xdg_music_dir
+  get_xdg_pictures_dir
+  get_xdg_prefix_home
+  get_xdg_publicshare_dir
+  get_xdg_runtime_dir
+  get_xdg_templates_dir
+  get_xdg_videos_dir
+}
+
+init
