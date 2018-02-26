@@ -7,17 +7,17 @@ Elvish XDG
 epm:install github.com/chlorm/elvish-xdg
 use github.com/chlorm/elvish-xdg
 
-$xdg_cache_home
-$xdg_config_home
-$xdg_data_home
-$xdg_desktop_dir
-$xdg_documents_dir
-$xdg_download_dir
-$xdg_music_dir
-$xdg_pictures_dir
-$xdg_prefix_home
-$xdg_publicshare_dir
-$xdg_runtime_dir
-$xdg_templates_dir
-$xdg_videos_dir
+$xdg:xdg_cache_home
+$xdg:xdg_config_home
+$xdg:xdg_data_home
+$xdg:xdg_desktop_dir
+$xdg:xdg_documents_dir
+$xdg:xdg_download_dir
+$xdg:xdg_music_dir
+$xdg:xdg_pictures_dir
+$xdg:xdg_prefix_home
+$xdg:xdg_publicshare_dir
+$xdg:xdg_runtime_dir
+$xdg:xdg_templates_dir
+$xdg:xdg_videos_dir
 ```

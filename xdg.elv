@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This test for xdg values in the following order.
+# This tests for xdg values in the following order.
 # Environment variable -> user config -> system config -> fallback
 
 # XXX: Because elvish doesn't support $E:$var we have to have individual
