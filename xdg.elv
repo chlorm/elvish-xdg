@@ -20,56 +20,45 @@
 #      module could be simplified further.
 
 fn get_xdg_val_fallback [x]{
-  local:xdg = ''
-  if (test -f $E:HOME/.config/user-dirs.dirs) {
+  try {
+    # Evaluates strings from configs that may contain POSIX shell variables.
+    put (sh -c 'echo '(awk '-F=' '/'$x'/ { print $2 }' $E:HOME'/.config/user-dirs.dirs') 2>/dev/null)
+  } except {
     try {
       # Evaluates strings from configs that may contain POSIX shell variables.
-      xdg = (sh -c 'echo '(awk '-F=' '/'$x'/ { print $2 }' $E:HOME'/.config/user-dirs.dirs') 2>/dev/null)
+      put (sh -c 'echo '(awk '-F=' '/'$x'/ { print $2 }' '/etc/xdg/user-dirs.defaults') 2>/dev/null)
     } except {
-      xdg = ''
+      if (==s $x 'XDG_CACHE_HOME') {
+        put $E:HOME'/.cache'
+      } elif (==s $x 'XDG_CONFIG_HOME') {
+        put $E:HOME'/.config'
+      } elif (==s $x 'XDG_DATA_HOME') {
+        put $E:HOME'/.local/share'
+      } elif (==s $x 'XDG_DESKTOP_DIR') {
+        put $E:HOME'/Desktop'
+      } elif (==s $x 'XDG_DOCUMENTS_DIR') {
+        put $E:HOME'/Documents'
+      } elif (==s $x 'XDG_DOWNLOAD_DIR') {
+        put $E:HOME'/Downloads'
+      } elif (==s $x 'XDG_MUSIC_DIR') {
+        put $E:HOME'/Music'
+      } elif (==s $x 'XDG_PICTURES_DIR') {
+        put $E:HOME'/Pictures'
+      } elif (==s $x 'XDG_PREFIX_HOME') {
+        put $E:HOME'/.local'
+      } elif (==s $x 'XDG_PUBLICSHARE_DIR') {
+        put $E:HOME'/Public'
+      } elif (==s $x 'XDG_RUNTIME_DIR') {
+        put $E:HOME'/.cache'
+      } elif (==s $x 'XDG_TEMPLATES_DIR') {
+        put $E:HOME'/Templates'
+      } elif (==s $x 'XDG_VIDEOS_DIR') {
+        put $E:HOME'/Videos'
+      } else {
+        fail 'Unknown XDG variable: '$x
+      }
     }
   }
-  if (and ?(test -f /etc/xdg/user-dirs.defaults) (==s $xdg '')) {
-    try {
-      # Evaluates strings from configs that may contain POSIX shell variables.
-      xdg = (sh -c 'echo '(awk '-F=' '/'$x'/ { print $2 }' '/etc/xdg/user-dirs.defaults') 2>/dev/null)
-    } except {
-      xdg = ''
-    }
-  }
-  if (==s $xdg '') {
-    if (==s $x 'XDG_CACHE_HOME') {
-      xdg = $E:HOME'/.cache'
-    } elif (==s $x 'XDG_CONFIG_HOME') {
-      xdg = $E:HOME'/.config'
-    } elif (==s $x 'XDG_DATA_HOME') {
-      xdg = $E:HOME'/.local/share'
-    } elif (==s $x 'XDG_DESKTOP_DIR') {
-      xdg = $E:HOME'/Desktop'
-    } elif (==s $x 'XDG_DOCUMENTS_DIR') {
-      xdg = $E:HOME'/Documents'
-    } elif (==s $x 'XDG_DOWNLOAD_DIR') {
-      xdg = $E:HOME'/Downloads'
-    } elif (==s $x 'XDG_MUSIC_DIR') {
-      xdg = $E:HOME'/Music'
-    } elif (==s $x 'XDG_PICTURES_DIR') {
-      xdg = $E:HOME'/Pictures'
-    } elif (==s $x 'XDG_PREFIX_HOME') {
-      xdg = $E:HOME'/.local'
-    } elif (==s $x 'XDG_PUBLICSHARE_DIR') {
-      xdg = $E:HOME'/Public'
-    } elif (==s $x 'XDG_RUNTIME_DIR') {
-      xdg = $E:HOME'/.cache'
-    } elif (==s $x 'XDG_TEMPLATES_DIR') {
-      xdg = $E:HOME'/Templates'
-    } elif (==s $x 'XDG_VIDEOS_DIR') {
-      xdg = $E:HOME'/Videos'
-    } else {
-      fail 'Unknown XDG variable: '$x
-    }
-  }
-
-  put $xdg
 }
 
 fn get_xdg_cache_home {
