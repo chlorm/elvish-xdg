@@ -19,40 +19,41 @@ fn get-xdg-dir [xdgvar]{
   try {
     put (get-env $xdgvar)
   } except {
+    local:home = (get-env HOME)
     try {
       # Evaluates strings from configs that may contain POSIX shell variables.
-      put (sh -c 'echo '(awk '-F=' '/'$xdgvar'/ { print $2 }' $E:HOME'/.config/user-dirs.dirs') 2>/dev/null)
+      put (sh -c 'echo '(awk '-F=' '/'$xdgvar'/ { print $2 }' $home'/.config/user-dirs.dirs') 2>/dev/null)
     } except {
       try {
         # Evaluates strings from configs that may contain POSIX shell variables.
         put (sh -c 'echo '(awk '-F=' '/'$xdgvar'/ { print $2 }' '/etc/xdg/user-dirs.defaults') 2>/dev/null)
       } except {
         if (==s $xdgvar 'XDG_CACHE_HOME') {
-          put $E:HOME'/.cache'
+          put $home'/.cache'
         } elif (==s $xdgvar 'XDG_CONFIG_HOME') {
-          put $E:HOME'/.config'
+          put $home'/.config'
         } elif (==s $xdgvar 'XDG_DATA_HOME') {
-          put $E:HOME'/.local/share'
+          put $home'/.local/share'
         } elif (==s $xdgvar 'XDG_DESKTOP_DIR') {
-          put $E:HOME'/Desktop'
+          put $home'/Desktop'
         } elif (==s $xdgvar 'XDG_DOCUMENTS_DIR') {
-          put $E:HOME'/Documents'
+          put $home'/Documents'
         } elif (==s $xdgvar 'XDG_DOWNLOAD_DIR') {
-          put $E:HOME'/Downloads'
+          put $home'/Downloads'
         } elif (==s $xdgvar 'XDG_MUSIC_DIR') {
-          put $E:HOME'/Music'
+          put $home'/Music'
         } elif (==s $xdgvar 'XDG_PICTURES_DIR') {
-          put $E:HOME'/Pictures'
+          put $home'/Pictures'
         } elif (==s $xdgvar 'XDG_PREFIX_HOME') {
-          put $E:HOME'/.local'
+          put $home'/.local'
         } elif (==s $xdgvar 'XDG_PUBLICSHARE_DIR') {
-          put $E:HOME'/Public'
+          put $home'/Public'
         } elif (==s $xdgvar 'XDG_RUNTIME_DIR') {
-          put $E:HOME'/.cache'
+          put $home'/.cache'
         } elif (==s $xdgvar 'XDG_TEMPLATES_DIR') {
-          put $E:HOME'/Templates'
+          put $home'/Templates'
         } elif (==s $xdgvar 'XDG_VIDEOS_DIR') {
-          put $E:HOME'/Videos'
+          put $home'/Videos'
         } else {
           fail 'Unknown XDG variable: '$xdgvar
         }
