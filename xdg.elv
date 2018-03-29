@@ -18,16 +18,16 @@
 fn get-xdg-dir [xdgvar]{
   try {
     put (get-env $xdgvar)
-  } except {
+  } except _ {
     local:home = (get-env HOME)
     try {
       # Evaluates strings from configs that may contain POSIX shell variables.
       put (sh -c 'echo '(awk '-F=' '/'$xdgvar'/ { print $2 }' $home'/.config/user-dirs.dirs') 2>/dev/null)
-    } except {
+    } except _ {
       try {
         # Evaluates strings from configs that may contain POSIX shell variables.
         put (sh -c 'echo '(awk '-F=' '/'$xdgvar'/ { print $2 }' '/etc/xdg/user-dirs.defaults') 2>/dev/null)
-      } except {
+      } except _ {
         if (==s $xdgvar 'XDG_CACHE_HOME') {
           put $home'/.cache'
         } elif (==s $xdgvar 'XDG_CONFIG_HOME') {
@@ -86,7 +86,7 @@ fn populate-xdg-env-vars {
       } else {
         fail
       }
-    } except {
+    } except _ {
       set-env $i (get-xdg-dir $i)
     }
   }
