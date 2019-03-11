@@ -1,4 +1,4 @@
-# Copyright (c) 2018, Cody Opel <codyopel@gmail.com>
+# Copyright (c) 2018-2019, Cody Opel <codyopel@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ fn get-xdg-dir [xdg-var]{
   get-dir $xdg-var
 }
 
-fn populate-xdg-env-vars {
+fn populate-env-vars {
   for local:i [(keys $xdg-vars)] {
     try {
       _ = (!=s (get-env $i) ''i)
@@ -62,4 +62,8 @@ fn populate-xdg-env-vars {
       set-env $i (get-dir $i)
     }
   }
+}
+# DEPRECATED
+fn populate-xdg-env-vars {
+  populate-env-vars
 }
