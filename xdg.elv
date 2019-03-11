@@ -81,11 +81,7 @@ fn populate-xdg-env-vars {
 
   for local:i $xdg-dirs {
     try {
-      if (!=s (get-env $i) '') {
-        continue
-      } else {
-        fail
-      }
+      _ = (!=s (get-env $i) ''i)
     } except _ {
       set-env $i (get-xdg-dir $i)
     }
