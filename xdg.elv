@@ -12,78 +12,54 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+local:home = (get-env HOME)
+local:xdg-vars = [
+  &XDG_CACHE_HOME=$home'/.cache'
+  &XDG_CONFIG_HOME=$home'/.config'
+  &XDG_DATA_HOME=$home'/.local/share'
+  &XDG_DESKTOP_DIR=$home'/Desktop'
+  &XDG_DOCUMENTS_DIR=$home'/Documents'
+  &XDG_DOWNLOAD_DIR=$home'/Downloads'
+  &XDG_MUSIC_DIR=$home'/Music'
+  &XDG_PICTURES_DIR=$home'/Pictures'
+  &XDG_PREFIX_HOME=$home'/.local'
+  &XDG_PUBLICSHARE_DIR=$home'/Public'
+  &XDG_RUNTIME_DIR=$home'/.cache'
+  &XDG_TEMPLATES_DIR=$home'/Templates'
+  &XDG_VIDEOS_DIR=$home'/Videos'
+]
+
 # Accepts an XDG environment variable (e.g. XDG_CACHE_HOME).
 # This tests for xdg values in the following order.
 # Environment variable -> user config -> system config -> fallback
-fn get-xdg-dir [xdgvar]{
+fn get-dir [xdg-var]{
   try {
-    put (get-env $xdgvar)
+    put (get-env $xdg-var)
   } except _ {
-    local:home = (get-env HOME)
     try {
       # Evaluates strings from configs that may contain POSIX shell variables.
-      put (sh -c 'echo '(awk '-F=' '/'$xdgvar'/ { print $2 }' $home'/.config/user-dirs.dirs') 2>/dev/null)
+      put (sh -c 'echo '(awk '-F=' '/'$xdg-var'/ { print $2 }' $home'/.config/user-dirs.dirs') 2>/dev/null)
     } except _ {
       try {
         # Evaluates strings from configs that may contain POSIX shell variables.
-        put (sh -c 'echo '(awk '-F=' '/'$xdgvar'/ { print $2 }' '/etc/xdg/user-dirs.defaults') 2>/dev/null)
+        put (sh -c 'echo '(awk '-F=' '/'$xdg-var'/ { print $2 }' '/etc/xdg/user-dirs.defaults') 2>/dev/null)
       } except _ {
-        if (==s $xdgvar 'XDG_CACHE_HOME') {
-          put $home'/.cache'
-        } elif (==s $xdgvar 'XDG_CONFIG_HOME') {
-          put $home'/.config'
-        } elif (==s $xdgvar 'XDG_DATA_HOME') {
-          put $home'/.local/share'
-        } elif (==s $xdgvar 'XDG_DESKTOP_DIR') {
-          put $home'/Desktop'
-        } elif (==s $xdgvar 'XDG_DOCUMENTS_DIR') {
-          put $home'/Documents'
-        } elif (==s $xdgvar 'XDG_DOWNLOAD_DIR') {
-          put $home'/Downloads'
-        } elif (==s $xdgvar 'XDG_MUSIC_DIR') {
-          put $home'/Music'
-        } elif (==s $xdgvar 'XDG_PICTURES_DIR') {
-          put $home'/Pictures'
-        } elif (==s $xdgvar 'XDG_PREFIX_HOME') {
-          put $home'/.local'
-        } elif (==s $xdgvar 'XDG_PUBLICSHARE_DIR') {
-          put $home'/Public'
-        } elif (==s $xdgvar 'XDG_RUNTIME_DIR') {
-          put $home'/.cache'
-        } elif (==s $xdgvar 'XDG_TEMPLATES_DIR') {
-          put $home'/Templates'
-        } elif (==s $xdgvar 'XDG_VIDEOS_DIR') {
-          put $home'/Videos'
-        } else {
-          fail 'Unknown XDG variable: '$xdgvar
-        }
+        put $xdg-vars[$xdg-var]
       }
     }
   }
 }
+# DEPRECATED
+fn get-xdg-dir [xdg-var]{
+  get-dir $xdg-var
+}
 
 fn populate-xdg-env-vars {
-  local:xdg-dirs = [
-    'XDG_CACHE_HOME'
-    'XDG_CONFIG_HOME'
-    'XDG_DATA_HOME'
-    'XDG_DESKTOP_DIR'
-    'XDG_DOCUMENTS_DIR'
-    'XDG_DOWNLOAD_DIR'
-    'XDG_MUSIC_DIR'
-    'XDG_PICTURES_DIR'
-    'XDG_PREFIX_HOME'
-    'XDG_PUBLICSHARE_DIR'
-    'XDG_RUNTIME_DIR'
-    'XDG_TEMPLATES_DIR'
-    'XDG_VIDEOS_DIR'
-  ]
-
-  for local:i $xdg-dirs {
+  for local:i [(keys $xdg-vars)] {
     try {
       _ = (!=s (get-env $i) ''i)
     } except _ {
-      set-env $i (get-xdg-dir $i)
+      set-env $i (get-dir $i)
     }
   }
 }
