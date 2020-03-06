@@ -51,7 +51,6 @@ fn -get-dir-from-config [config var]{
   }
   put $dir
 }
--get-dir-from-config $E:HOME'/.config/user-dirs.dirs' XDG_CACHE_HOME
 
 # Accepts an XDG environment variable (e.g. XDG_CACHE_HOME).
 # This tests for xdg values in the following order.
