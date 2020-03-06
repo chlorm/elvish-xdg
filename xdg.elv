@@ -60,10 +60,10 @@ fn get-dir [xdg-var]{
     put (get-env $xdg-var)
   } except _ {
     try {
-      put (-get-dir-from-config $home'/.config/user-dirs.dirs')
+      put (-get-dir-from-config $home'/.config/user-dirs.dirs' $xdg-var)
     } except _ {
       try {
-        put (-get-dir-from-config $E:ROOT'/etc/xdg/user-dirs.defaults')
+        put (-get-dir-from-config $E:ROOT'/etc/xdg/user-dirs.defaults' $xdg-var)
       } except _ {
         put $xdg-vars[$xdg-var]
       }
