@@ -1,0 +1,5 @@
+{
+  "dependencies": [
+    "github.com/chlorm/elvish-util-wrappers"
+  ]
+}
