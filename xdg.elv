@@ -70,11 +70,6 @@ fn get-dir [xdg-var]{
     }
   }
 }
-# DEPRECATED
-fn get-xdg-dir [xdg-var]{
-  print 'get-xdg-dir is deprecated, use get-dir' > /dev/stderr
-  get-dir $xdg-var
-}
 
 fn populate-env-vars {
   for local:i [(keys $xdg-vars)] {
@@ -84,9 +79,4 @@ fn populate-env-vars {
       set-env $i (get-dir $i)
     }
   }
-}
-# DEPRECATED
-fn populate-xdg-env-vars {
-  print 'populate-xdg-env-vars is deprecated, use populate-env-vars' > /dev/stderr
-  populate-env-vars
 }
