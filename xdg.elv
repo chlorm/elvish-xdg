@@ -12,6 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+use re
+use github.com/chlorm/elvish-util-wrappers/regex
+
+
 local:home = (get-env HOME)
 local:xdg-vars = [
   &XDG_CACHE_HOME=$home'/.cache'
@@ -29,6 +34,25 @@ local:xdg-vars = [
   &XDG_VIDEOS_DIR=$home'/Videos'
 ]
 
+# Evaluates strings from configs that may contain POSIX shell variables.
+fn -get-dir-from-config [config var]{
+  local:m = ''
+  for local:i [(cat $config)] {
+    if (re:match '.*'$var'.*' $i) {
+      m = (regex:find $var'=(.*)' $i)
+    }
+  }
+  local:dir = ''
+  try {
+    dir = (sh -c '. '$config' && eval echo '$m)
+  } except e {
+    put $e >&2
+    fail 'xdg config eval failed'
+  }
+  put $dir
+}
+-get-dir-from-config $E:HOME'/.config/user-dirs.dirs' XDG_CACHE_HOME
+
 # Accepts an XDG environment variable (e.g. XDG_CACHE_HOME).
 # This tests for xdg values in the following order.
 # Environment variable -> user config -> system config -> fallback
@@ -37,12 +61,10 @@ fn get-dir [xdg-var]{
     put (get-env $xdg-var)
   } except _ {
     try {
-      # Evaluates strings from configs that may contain POSIX shell variables.
-      put (sh -c 'echo '(awk '-F=' '/'$xdg-var'/ { print $2 }' $home'/.config/user-dirs.dirs') 2>/dev/null)
+      put (-get-dir-from-config $home'/.config/user-dirs.dirs')
     } except _ {
       try {
-        # Evaluates strings from configs that may contain POSIX shell variables.
-        put (sh -c 'echo '(awk '-F=' '/'$xdg-var'/ { print $2 }' '/etc/xdg/user-dirs.defaults') 2>/dev/null)
+        put (-get-dir-from-config $E:ROOT'/etc/xdg/user-dirs.defaults')
       } except _ {
         put $xdg-vars[$xdg-var]
       }
