@@ -37,7 +37,7 @@ local:xdg-vars = [
 # Evaluates strings from configs that may contain POSIX shell variables.
 fn -get-dir-from-config [config var]{
   local:m = ''
-  for local:i [(cat $config)] {
+  for local:i [(cat $config 2>&-)] {
     if (re:match '.*'$var'.*' $i) {
       m = (regex:find $var'=(.*)' $i)
     }
