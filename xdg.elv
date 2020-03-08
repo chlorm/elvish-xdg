@@ -65,7 +65,7 @@ fn get-dir [xdg-var]{
       try {
         configdir = (get-env 'XDG_CONFIG_HOME')
       } except _ {
-        configdir = $xdgvars['XDG_CONFIG_HOME']
+        configdir = $xdg-vars['XDG_CONFIG_HOME']
       }
       put (-get-dir-from-config $configdir'/user-dirs.dirs' $xdg-var)
     } except _ {
