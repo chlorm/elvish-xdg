@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019, Cody Opel <codyopel@gmail.com>
+# Copyright (c) 2018-2020, Cody Opel <codyopel@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -60,7 +60,14 @@ fn get-dir [xdg-var]{
     put (get-env $xdg-var)
   } except _ {
     try {
-      put (-get-dir-from-config $home'/.config/user-dirs.dirs' $xdg-var)
+      # Always try XDG_CONFIG_HOME when loading user config.
+      local:configdir = ""
+      try {
+        configdir = (get-env 'XDG_CONFIG_HOME')
+      } except _ {
+        configdir = $xdgvars['XDG_CONFIG_HOME']
+      }
+      put (-get-dir-from-config $configdir'/user-dirs.dirs' $xdg-var)
     } except _ {
       try {
         put (-get-dir-from-config $E:ROOT'/etc/xdg/user-dirs.defaults' $xdg-var)
