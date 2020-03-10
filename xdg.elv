@@ -42,6 +42,9 @@ fn -get-dir-from-config [config var]{
       m = (regex:find $var'=(.*)' $i)
     }
   }
+  if (==s '' $m) {
+    fail 'no match in config'
+  }
   local:dir = ''
   try {
     dir = (sh -c '. '$config' && eval echo '$m)
