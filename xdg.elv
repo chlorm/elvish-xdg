@@ -98,7 +98,7 @@ fn get-dir [xdg-var]{
 fn populate-env-vars {
   for local:i [ (keys $xdg-vars) ] {
     try {
-      _ = (!=s (get-env $i) ''i)
+      _ = (!=s (get-env $i) '')
     } except _ {
       set-env $i (get-dir $i)
     }
