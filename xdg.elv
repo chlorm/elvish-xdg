@@ -47,7 +47,7 @@ xdg-vars[XDG_DATA_HOME]=(path:join $xdg-vars[XDG_PREFIX_HOME] 'share')
 # Evaluates strings from configs that may contain POSIX shell variables.
 fn -get-dir-from-config [config var]{
   local:m = ''
-  for local:i [(io:cat $config)] {
+  for local:i [ (io:cat $config) ] {
     if (re:match '^'$var'.*' $i) {
       m = (regex:find $var'=(.*)' $i)
     }
@@ -55,7 +55,7 @@ fn -get-dir-from-config [config var]{
   if (==s '' $m) {
     fail 'no match in config'
   }
-  put (sh -c '. '$config' && eval echo '$m)
+  put (e:sh -c '. '$config' && eval echo '$m)
 }
 
 # Accepts an XDG environment variable (e.g. XDG_CACHE_HOME).
