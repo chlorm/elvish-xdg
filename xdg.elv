@@ -65,10 +65,12 @@ fn get-dir [xdg-var]{
     try {
         put (get-env $xdg-var)
     } except _ {
-        # Never setup XDG_RUNTIME_DIR from configs if the OS fails to provide it.
+        # Never setup XDG_RUNTIME_DIR from configs if the OS fails to
+        # provide it.
         if (==s 'XDG_RUNTIME_DIR' $xdg-var) {
             try {
-                # This will automatically create the directory and set permissions.
+                # This will automatically create the directory and set
+                # permissions.
                 put (tmpfs:get-user-tmpfs)
             } except _ {
                 put $xdg-vars[XDG_CACHE_HOME]
@@ -86,7 +88,8 @@ fn get-dir [xdg-var]{
             put (-get-dir-from-config $configdir'/user-dirs.dirs' $xdg-var)
         } except _ {
             try {
-                put (-get-dir-from-config $E:ROOT'/etc/xdg/user-dirs.defaults' $xdg-var)
+                put (-get-dir-from-config ^
+                         $E:ROOT'/etc/xdg/user-dirs.defaults' $xdg-var)
             } except _ {
                 put $xdg-vars[$xdg-var]
             }
