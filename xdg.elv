@@ -13,7 +13,9 @@
 # limitations under the License.
 
 
+use platform
 use re
+use str
 use github.com/chlorm/elvish-stl/io
 use github.com/chlorm/elvish-stl/os
 use github.com/chlorm/elvish-stl/path
@@ -21,7 +23,7 @@ use github.com/chlorm/elvish-stl/regex
 use github.com/chlorm/elvish-user-tmpfs/tmpfs
 
 
-local:home = (get-env HOME)
+local:home = (path:home)
 # NOTE: some of these are not officially part of the basedir spec but are
 #       useful so they are included here.
 local:xdg-vars = [
@@ -39,10 +41,21 @@ local:xdg-vars = [
     &XDG_VIDEOS_DIR=(path:join $home 'Videos')
 ]
 # FIXME: XDG_PREFIX_HOME should be evaluated
-xdg-vars[XDG_BIN_HOME]=(path:join $xdg-vars[XDG_PREFIX_HOME] 'bin')
-xdg-vars[XDG_LIB_HOME]=(path:join $xdg-vars[XDG_PREFIX_HOME] 'lib')
-xdg-vars[XDG_DATA_HOME]=(path:join $xdg-vars[XDG_PREFIX_HOME] 'share')
+xdg-vars[XDG_BIN_HOME] = (path:join $xdg-vars[XDG_PREFIX_HOME] 'bin')
+xdg-vars[XDG_LIB_HOME] = (path:join $xdg-vars[XDG_PREFIX_HOME] 'lib')
+xdg-vars[XDG_DATA_HOME] = (path:join $xdg-vars[XDG_PREFIX_HOME] 'share')
 
+if $platform:is-windows {
+    # HOME is not set on Windows.
+    xdg-vars[HOME] = $home
+    xdg-vars[XDG_CACHE_HOME] = (get-env TEMP)
+    xdg-vars[XDG_CONFIG_HOME] = (get-env APPDATA)
+    xdg-vars[XDG_DATA_HOME] = (get-env LOCALAPPDATA)
+} elif (==s $platform:os 'darwin') {
+    xdg-vars[XDG_CACHE_HOME] = (path:join $home 'Library' 'Caches')
+    xdg-vars[XDG_CONFIG_HOME] = (path:join $home 'Library' 'Preferences')
+    xdg-vars[XDG_DATA_HOME] = (path:join $home 'Library' 'Application Support')
+}
 
 # Evaluates strings from configs that may contain POSIX shell variables.
 fn -get-dir-from-config [config var]{
@@ -69,6 +82,10 @@ fn get-dir [xdg-var]{
         # provide it.
         if (==s 'XDG_RUNTIME_DIR' $xdg-var) {
             try {
+                if $platform:is-windows {
+                    # Windows has no equivalent of tmpfs/ramfs.
+                    fail
+                }
                 # This will automatically create the directory and set
                 # permissions.
                 put (tmpfs:get-user-tmpfs)
