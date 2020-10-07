@@ -15,7 +15,6 @@
 
 use platform
 use re
-use str
 use github.com/chlorm/elvish-stl/io
 use github.com/chlorm/elvish-stl/os
 use github.com/chlorm/elvish-stl/path
