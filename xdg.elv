@@ -22,10 +22,10 @@ use github.com/chlorm/elvish-stl/regex
 use github.com/chlorm/elvish-user-tmpfs/tmpfs
 
 
-HOME = (path:home)
+var HOME = (path:home)
 # NOTE: some of these are not officially part of the basedir spec but are
 #       useful so they are included here.
-XDG-VARS = [
+var XDG-VARS = [
     &XDG_CACHE_HOME=(path:join $HOME '.cache')
     &XDG_CONFIG_HOME=(path:join $HOME '.config')
     &XDG_DESKTOP_DIR=(path:join $HOME 'Desktop')
@@ -40,28 +40,28 @@ XDG-VARS = [
     &XDG_VIDEOS_DIR=(path:join $HOME 'Videos')
 ]
 # FIXME: XDG_PREFIX_HOME should be evaluated
-XDG-VARS[XDG_BIN_HOME] = (path:join $XDG-VARS[XDG_PREFIX_HOME] 'bin')
-XDG-VARS[XDG_LIB_HOME] = (path:join $XDG-VARS[XDG_PREFIX_HOME] 'lib')
-XDG-VARS[XDG_DATA_HOME] = (path:join $XDG-VARS[XDG_PREFIX_HOME] 'share')
+set XDG-VARS[XDG_BIN_HOME] = (path:join $XDG-VARS[XDG_PREFIX_HOME] 'bin')
+set XDG-VARS[XDG_LIB_HOME] = (path:join $XDG-VARS[XDG_PREFIX_HOME] 'lib')
+set XDG-VARS[XDG_DATA_HOME] = (path:join $XDG-VARS[XDG_PREFIX_HOME] 'share')
 
 if $platform:is-windows {
     # HOME is not set on Windows.
-    XDG-VARS[HOME] = $HOME
-    XDG-VARS[XDG_CACHE_HOME] = (get-env TEMP)
-    XDG-VARS[XDG_CONFIG_HOME] = (get-env APPDATA)
-    XDG-VARS[XDG_DATA_HOME] = (get-env LOCALAPPDATA)
+    set XDG-VARS[HOME] = $HOME
+    set XDG-VARS[XDG_CACHE_HOME] = (get-env TEMP)
+    set XDG-VARS[XDG_CONFIG_HOME] = (get-env APPDATA)
+    set XDG-VARS[XDG_DATA_HOME] = (get-env LOCALAPPDATA)
 } elif (==s $platform:os 'darwin') {
-    XDG-VARS[XDG_CACHE_HOME] = (path:join $HOME 'Library' 'Caches')
-    XDG-VARS[XDG_CONFIG_HOME] = (path:join $HOME 'Library' 'Preferences')
-    XDG-VARS[XDG_DATA_HOME] = (path:join $HOME 'Library' 'Application Support')
+    set XDG-VARS[XDG_CACHE_HOME] = (path:join $HOME 'Library' 'Caches')
+    set XDG-VARS[XDG_CONFIG_HOME] = (path:join $HOME 'Library' 'Preferences')
+    set XDG-VARS[XDG_DATA_HOME] = (path:join $HOME 'Library' 'Application Support')
 }
 
 # Evaluates strings from configs that may contain POSIX shell variables.
 fn -get-dir-from-config [config var]{
-    m = $nil
+    var m = $nil
     for i [ (io:cat $config) ] {
         if (re:match '^'$var'.*' $i) {
-            m = (regex:find $var'=(.*)' $i)
+            set m = (regex:find $var'=(.*)' $i)
         }
     }
     if (eq $m $nil) {
@@ -95,9 +95,9 @@ fn get-dir [xdgVar]{
         }
         try {
             # Always try XDG_CONFIG_HOME when loading user config.
-            configDir = $XDG-VARS['XDG_CONFIG_HOME']
+            var configDir = $XDG-VARS['XDG_CONFIG_HOME']
             try {
-                configDir = (get-env 'XDG_CONFIG_HOME')
+                set configDir = (get-env 'XDG_CONFIG_HOME')
             } except _ {
                 # Ignore
             }
@@ -116,7 +116,7 @@ fn get-dir [xdgVar]{
 fn populate-env-vars {
     for i [ (keys $XDG-VARS) ] {
         try {
-            _ = (!=s (get-env $i) '')
+            var _ = (!=s (get-env $i) '')
         } except _ {
             set-env $i (get-dir $i)
         }
