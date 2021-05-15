@@ -67,7 +67,7 @@ fn -get-dir-from-config [config var]{
     if (eq $m $nil) {
         fail 'no match in config'
     }
-    put (e:sh -c '. '$config' && eval echo '$m)
+    put (e:sh '-c' '. '$config' && eval echo '$m)
 }
 
 # Accepts an XDG environment variable (e.g. XDG_CACHE_HOME).
