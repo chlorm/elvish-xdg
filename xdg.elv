@@ -40,20 +40,20 @@ var XDG-VARS = [
     &XDG_VIDEOS_DIR=(path:join $HOME 'Videos')
 ]
 # FIXME: XDG_PREFIX_HOME should be evaluated
-set XDG-VARS[XDG_BIN_HOME] = (path:join $XDG-VARS[XDG_PREFIX_HOME] 'bin')
-set XDG-VARS[XDG_LIB_HOME] = (path:join $XDG-VARS[XDG_PREFIX_HOME] 'lib')
-set XDG-VARS[XDG_DATA_HOME] = (path:join $XDG-VARS[XDG_PREFIX_HOME] 'share')
+set XDG-VARS['XDG_BIN_HOME'] = (path:join $XDG-VARS['XDG_PREFIX_HOME'] 'bin')
+set XDG-VARS['XDG_LIB_HOME'] = (path:join $XDG-VARS['XDG_PREFIX_HOME'] 'lib')
+set XDG-VARS['XDG_DATA_HOME'] = (path:join $XDG-VARS['XDG_PREFIX_HOME'] 'share')
 
 if $platform:is-windows {
     # HOME is not set on Windows.
-    set XDG-VARS[HOME] = $HOME
-    set XDG-VARS[XDG_CACHE_HOME] = (get-env TEMP)
-    set XDG-VARS[XDG_CONFIG_HOME] = (get-env APPDATA)
-    set XDG-VARS[XDG_DATA_HOME] = (get-env LOCALAPPDATA)
+    set XDG-VARS['HOME'] = $HOME
+    set XDG-VARS['XDG_CACHE_HOME'] = (get-env 'TEMP')
+    set XDG-VARS['XDG_CONFIG_HOME'] = (get-env 'APPDATA')
+    set XDG-VARS['XDG_DATA_HOME'] = (get-env 'LOCALAPPDATA')
 } elif (==s $platform:os 'darwin') {
-    set XDG-VARS[XDG_CACHE_HOME] = (path:join $HOME 'Library' 'Caches')
-    set XDG-VARS[XDG_CONFIG_HOME] = (path:join $HOME 'Library' 'Preferences')
-    set XDG-VARS[XDG_DATA_HOME] = (path:join $HOME 'Library' 'Application Support')
+    set XDG-VARS['XDG_CACHE_HOME'] = (path:join $HOME 'Library' 'Caches')
+    set XDG-VARS['XDG_CONFIG_HOME'] = (path:join $HOME 'Library' 'Preferences')
+    set XDG-VARS['XDG_DATA_HOME'] = (path:join $HOME 'Library' 'Application Support')
 }
 
 # Evaluates strings from configs that may contain POSIX shell variables.
