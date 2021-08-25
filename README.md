@@ -6,6 +6,6 @@
 epm:install github.com/chlorm/elvish-xdg
 use github.com/chlorm/elvish-xdg/xdg
 
-xdg:get-xdg-dir 'XDG_CONFIG_HOME'
-xdg:populate-xdg-env-vars
+xdg:get-dir 'XDG_CONFIG_HOME'
+xdg:populate-env-vars
 ```
