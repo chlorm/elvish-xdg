@@ -19,6 +19,7 @@ use github.com/chlorm/elvish-stl/io
 use github.com/chlorm/elvish-stl/os
 use github.com/chlorm/elvish-stl/path
 use github.com/chlorm/elvish-stl/regex
+use github.com/chlorm/elvish-stl/wrap
 use github.com/chlorm/elvish-user-tmpfs/tmpfs
 
 
@@ -67,7 +68,7 @@ fn -get-dir-from-config [config var]{
     if (eq $m $nil) {
         fail 'no match in config'
     }
-    put (e:sh '-c' '. '$config' && eval echo '$m)
+    wrap:cmd-out 'sh' '-c' '. '$config' && eval echo '$m
 }
 
 # Accepts an XDG environment variable (e.g. XDG_CACHE_HOME).
