@@ -76,7 +76,7 @@ fn -get-dir-from-config [config var]{
 # Environment variable -> user config -> system config -> fallback
 fn get-dir [xdgVar]{
     try {
-        put (get-env $xdgVar)
+        get-env $xdgVar
     } except _ {
         # Never setup XDG_RUNTIME_DIR from configs if the OS fails to
         # provide it.
@@ -88,7 +88,7 @@ fn get-dir [xdgVar]{
                 }
                 # This will automatically create the directory and set
                 # permissions.
-                put (tmpfs:get-user-tmpfs)
+                tmpfs:get-user-tmpfs
             } except _ {
                 put $XDG-VARS['XDG_CACHE_HOME']
             }
@@ -102,11 +102,11 @@ fn get-dir [xdgVar]{
             } except _ {
                 # Ignore
             }
-            put (-get-dir-from-config $configDir'/user-dirs.dirs' $xdgVar)
+            -get-dir-from-config (path:join $configDir 'user-dirs.dirs') $xdgVar
         } except _ {
             try {
-                put (-get-dir-from-config ^
-                         $E:ROOT'/etc/xdg/user-dirs.defaults' $xdgVar)
+                -get-dir-from-config ^
+                    $E:ROOT'/etc/xdg/user-dirs.defaults' $xdgVar
             } except _ {
                 put $XDG-VARS[$xdgVar]
             }
