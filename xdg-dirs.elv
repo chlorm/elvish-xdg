@@ -30,16 +30,16 @@ var XDG-DOCUMENTS-DIR = 'XDG_DOCUMENTS_DIR'
 var XDG-DOWNLOAD-DIR = 'XDG_DOWNLOAD_DIR'
 var XDG-MUSIC-DIR = 'XDG_MUSIC_DIR'
 var XDG-PICTURES-DIR = 'XDG_PICTURES_DIR'
-var XDG-PREFIX-HOME = 'XDG_PREFIX_HOME'
 var XDG-PUBLICSHARE-DIR = 'XDG_PUBLICSHARE_DIR'
 var XDG-RUNTIME-DIR = 'XDG_RUNTIME_DIR'
 var XDG-TEMPLATES-DIR = 'XDG_TEMPLATES_DIR'
 var XDG-VIDEOS-DIR = 'XDG_VIDEOS_DIR'
-# NOTE: These are not officially part of the basedir spec but are
+# NOTE: Some of these are not officially part of the basedir spec but are
 #       useful so they are included here.
+var XDG-PREFIX-HOME = 'XDG_PREFIX_HOME'
 var XDG-BIN-HOME = 'XDG_BIN_HOME'
-var XDG-LIB-HOME = 'XDG_LIB_HOME'
 var XDG-DATA-HOME = 'XDG_DATA_HOME'
+var XDG-LIB-HOME = 'XDG_LIB_HOME'
 
 var XDG-VARS = [
     $XDG-CACHE-HOME
@@ -49,14 +49,14 @@ var XDG-VARS = [
     $XDG-DOWNLOAD-DIR
     $XDG-MUSIC-DIR
     $XDG-PICTURES-DIR
-    $XDG-PREFIX-HOME
     $XDG-PUBLICSHARE-DIR
     $XDG-RUNTIME-DIR
     $XDG-TEMPLATES-DIR
     $XDG-VIDEOS-DIR
+    $XDG-PREFIX-HOME
     $XDG-BIN-HOME
-    $XDG-LIB-HOME
     $XDG-DATA-HOME
+    $XDG-LIB-HOME
 ]
 
 # Evaluates strings from configs that may contain POSIX shell variables.
@@ -117,8 +117,6 @@ fn -fallback [xdgVar &parent=$nil]{
         path:join $HOME '.local'
     } elif (==s $XDG-BIN-HOME $xdgVar) {
          path:join $parent 'bin'
-    } elif (==s $XDG-LIB-HOME $xdgVar) {
-        path:join $parent 'lib'
     } elif (==s $XDG-DATA-HOME $xdgVar) {
         if $platform:is-windows {
             get-env 'LOCALAPPDATA'
@@ -127,6 +125,8 @@ fn -fallback [xdgVar &parent=$nil]{
         } else {
             path:join $parent 'share'
         }
+    } elif (==s $XDG-LIB-HOME $xdgVar) {
+        path:join $parent 'lib'
     } else {
         fail 'Invalid var: '$xdgVar
     }
@@ -157,6 +157,11 @@ fn get-config-system [var]{
 # This tests for xdg values in the following order.
 # Environment variable -> user config -> system config -> fallback
 fn get [xdgVar]{
+    var xdgPrefixChild = [
+        $XDG-BIN-HOME
+        $XDG-DATA-HOME
+        $XDG-LIB-HOME
+    ]
     try {
         get-var $xdgVar
     } except _ {
@@ -178,8 +183,7 @@ fn get [xdgVar]{
             try {
                 get-config-system $xdgVar
             } except _ {
-                if (has-value [ $XDG-BIN-HOME $XDG-DATA-HOME $XDG-LIB-HOME ] ^
-                        $xdgVar) {
+                if (has-value $xdgPrefixChild $xdgVar) {
                     put (-fallback &parent=(get $XDG-PREFIX-HOME) $xdgVar)
                 } else {
                     put (-fallback $xdgVar)
