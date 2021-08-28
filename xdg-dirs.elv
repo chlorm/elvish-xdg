@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2020, Cody Opel <cwopel@chlorm.net>
+# Copyright (c) 2018-2021, Cody Opel <cwopel@chlorm.net>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,43 +35,29 @@ var XDG-PUBLICSHARE-DIR = 'XDG_PUBLICSHARE_DIR'
 var XDG-RUNTIME-DIR = 'XDG_RUNTIME_DIR'
 var XDG-TEMPLATES-DIR = 'XDG_TEMPLATES_DIR'
 var XDG-VIDEOS-DIR = 'XDG_VIDEOS_DIR'
+# NOTE: These are not officially part of the basedir spec but are
+#       useful so they are included here.
 var XDG-BIN-HOME = 'XDG_BIN_HOME'
 var XDG-LIB-HOME = 'XDG_LIB_HOME'
 var XDG-DATA-HOME = 'XDG_DATA_HOME'
 
-var HOME = (path:home)
-# NOTE: some of these are not officially part of the basedir spec but are
-#       useful so they are included here.
-var XDG-VARS = [&]
-set XDG-VARS[$XDG-CACHE-HOME] = (path:join $HOME '.cache')
-set XDG-VARS[$XDG-CONFIG-HOME] = (path:join $HOME '.config')
-set XDG-VARS[$XDG-DESKTOP-DIR] = (path:join $HOME 'Desktop')
-set XDG-VARS[$XDG-DOCUMENTS-DIR] = (path:join $HOME 'Documents')
-set XDG-VARS[$XDG-DOWNLOAD-DIR] = (path:join $HOME 'Downloads')
-set XDG-VARS[$XDG-MUSIC-DIR] = (path:join $HOME 'Music')
-set XDG-VARS[$XDG-PICTURES-DIR] = (path:join $HOME 'Pictures')
-set XDG-VARS[$XDG-PUBLICSHARE-DIR] = (path:join $HOME 'Public')
-set XDG-VARS[$XDG-RUNTIME-DIR] = $nil
-# FIXME: Templates is some kind of hidden symlink on Windows
-set XDG-VARS[$XDG-TEMPLATES-DIR] = (path:join $HOME 'Templates')
-set XDG-VARS[$XDG-VIDEOS-DIR] = (path:join $HOME 'Videos')
-set XDG-VARS[$XDG-PREFIX-HOME] = (path:join $HOME '.local')
-# FIXME: XDG_PREFIX_HOME should be evaluated
-set XDG-VARS[$XDG-BIN-HOME] = (path:join $XDG-VARS[$XDG-PREFIX-HOME] 'bin')
-set XDG-VARS[$XDG-LIB-HOME] = (path:join $XDG-VARS[$XDG-PREFIX-HOME] 'lib')
-set XDG-VARS[$XDG-DATA-HOME] = (path:join $XDG-VARS[$XDG-PREFIX-HOME] 'share')
-
-if $platform:is-windows {
-    # HOME is not set on Windows.
-    set XDG-VARS['HOME'] = $HOME
-    set XDG-VARS[$XDG-CACHE-HOME] = (get-env 'TEMP')
-    set XDG-VARS[$XDG-CONFIG-HOME] = (get-env 'APPDATA')
-    set XDG-VARS[$XDG-DATA-HOME] = (get-env 'LOCALAPPDATA')
-} elif (==s $platform:os 'darwin') {
-    set XDG-VARS[$XDG-CACHE-HOME] = (path:join $HOME 'Library' 'Caches')
-    set XDG-VARS[$XDG-CONFIG-HOME] = (path:join $HOME 'Library' 'Preferences')
-    set XDG-VARS[$XDG-DATA-HOME] = (path:join $HOME 'Library' 'Application Support')
-}
+var XDG-VARS = [
+    $XDG-CACHE-HOME
+    $XDG-CONFIG-HOME
+    $XDG-DESKTOP-DIR
+    $XDG-DOCUMENTS-DIR
+    $XDG-DOWNLOAD-DIR
+    $XDG-MUSIC-DIR
+    $XDG-PICTURES-DIR
+    $XDG-PREFIX-HOME
+    $XDG-PUBLICSHARE-DIR
+    $XDG-RUNTIME-DIR
+    $XDG-TEMPLATES-DIR
+    $XDG-VIDEOS-DIR
+    $XDG-BIN-HOME
+    $XDG-LIB-HOME
+    $XDG-DATA-HOME
+]
 
 # Evaluates strings from configs that may contain POSIX shell variables.
 fn -get-dir-from-config [config var]{
@@ -87,55 +73,132 @@ fn -get-dir-from-config [config var]{
     wrap:cmd-out 'sh' '-c' '. '$config' && eval echo '$m
 }
 
+# This is to avoid generating all paths when the module is invoked.
+fn -fallback [xdgVar &parent=$nil]{
+    var darwin = 'darwin'
+    var HOME = (path:home)
+
+    if (==s $XDG-CACHE-HOME $xdgVar) {
+        if $platform:is-windows {
+            get-env 'TEMP'
+        } elif (==s $platform:os $darwin) {
+            path:join $HOME 'Library' 'Caches'
+        } else {
+            path:join $HOME '.cache'
+        }
+    } elif (==s $XDG-CONFIG-HOME $xdgVar) {
+        if $platform:is-windows {
+            get-env 'APPDATA'
+        } elif (==s $platform:os $darwin) {
+            path:join $HOME 'Library' 'Preferences'
+        } else {
+            path:join $HOME '.config'
+        }
+    } elif (==s $XDG-DESKTOP-DIR $xdgVar) {
+        path:join $HOME 'Desktop'
+    } elif (==s $XDG-DOCUMENTS-DIR $xdgVar) {
+        path:join $HOME 'Documents'
+    } elif (==s $XDG-DOWNLOAD-DIR $xdgVar) {
+        path:join $HOME 'Downloads'
+    } elif (==s $XDG-MUSIC-DIR $xdgVar) {
+        path:join $HOME 'Music'
+    } elif (==s $XDG-PICTURES-DIR $xdgVar) {
+        path:join $HOME 'Pictures'
+    } elif (==s $XDG-PUBLICSHARE-DIR $xdgVar) {
+        path:join $HOME 'Public'
+    } elif (==s $XDG-RUNTIME-DIR $xdgVar) {
+        put $nil
+    } elif (==s $XDG-TEMPLATES-DIR $xdgVar) {
+        # FIXME: Templates is some kind of hidden symlink on Windows
+        path:join $HOME 'Templates'
+    } elif (==s $XDG-VIDEOS-DIR $xdgVar) {
+        path:join $HOME 'Videos'
+    } elif (==s $XDG-PREFIX-HOME $xdgVar) {
+        path:join $HOME '.local'
+    } elif (==s $XDG-BIN-HOME $xdgVar) {
+         path:join $parent 'bin'
+    } elif (==s $XDG-LIB-HOME $xdgVar) {
+        path:join $parent 'lib'
+    } elif (==s $XDG-DATA-HOME $xdgVar) {
+        if $platform:is-windows {
+            get-env 'LOCALAPPDATA'
+        } elif (==s $platform:os $darwin) {
+            path:join $HOME 'Library' 'Application Support'
+        } else {
+            path:join $parent 'share'
+        }
+    } else {
+        fail 'Invalid var: '$xdgVar
+    }
+}
+
+fn get-var [var]{
+    get-env $var
+}
+
+fn get-config-user [var]{
+    # Always try XDG_CONFIG_HOME when loading user config.
+    var configDir = (-fallback $XDG-CACHE-HOME)
+    try {
+        set configDir = (get-var $XDG-CONFIG-HOME)
+    } except _ {
+        # Ignore
+    }
+    -get-dir-from-config (path:join $configDir 'user-dirs.dirs') $var
+}
+
+fn get-config-system [var]{
+    # FIXME: try XDG_CONFIG_DIRS here
+    -get-dir-from-config ^
+        $E:ROOT'/etc/xdg/user-dirs.defaults' $var
+}
+
 # Accepts an XDG environment variable (e.g. XDG_CACHE_HOME).
 # This tests for xdg values in the following order.
 # Environment variable -> user config -> system config -> fallback
 fn get [xdgVar]{
     try {
-        get-env $xdgVar
+        get-var $xdgVar
     } except _ {
         # Never setup XDG_RUNTIME_DIR from configs if the OS fails to
         # provide it.
         if (==s $xdgVar $XDG-RUNTIME-DIR) {
             try {
-                if $platform:is-windows {
-                    # Windows has no equivalent of tmpfs/ramfs.
-                    fail
-                }
                 # This will automatically create the directory and set
                 # permissions.
-                tmpfs:get-user-tmpfs
+                tmpfs:get-user
             } except _ {
-                put $XDG-VARS[$XDG-CACHE-HOME]
+                put (-fallback $XDG-CACHE-HOME)
             }
             return
         }
         try {
-            # Always try XDG_CONFIG_HOME when loading user config.
-            var configDir = $XDG-VARS[$XDG-CACHE-HOME]
-            try {
-                set configDir = (get-env $XDG-CONFIG-HOME)
-            } except _ {
-                # Ignore
-            }
-            -get-dir-from-config (path:join $configDir 'user-dirs.dirs') $xdgVar
+            get-config-user $xdgVar
         } except _ {
             try {
-                -get-dir-from-config ^
-                    $E:ROOT'/etc/xdg/user-dirs.defaults' $xdgVar
+                get-config-system $xdgVar
             } except _ {
-                put $XDG-VARS[$xdgVar]
+                if (has-value [ $XDG-BIN-HOME $XDG-DATA-HOME $XDG-LIB-HOME ] ^
+                        $xdgVar) {
+                    put (-fallback &parent=(get $XDG-PREFIX-HOME) $xdgVar)
+                } else {
+                    put (-fallback $xdgVar)
+                }
             }
         }
     }
 }
 
 fn populate-env {
-    for i [ (keys $XDG-VARS) ] {
+    if $platform:is-windows {
+        # HOME is not set on Windows.
+        set-env 'HOME' (path:home)
+    }
+    for i $XDG-VARS {
         try {
             var _ = (!=s (get-env $i) '')
         } except _ {
-            set-env $i (get-dir $i)
+            set-env $i (get $i)
         }
     }
 }
