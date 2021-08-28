@@ -40,6 +40,7 @@ var XDG-PREFIX-HOME = 'XDG_PREFIX_HOME'
 var XDG-BIN-HOME = 'XDG_BIN_HOME'
 var XDG-DATA-HOME = 'XDG_DATA_HOME'
 var XDG-LIB-HOME = 'XDG_LIB_HOME'
+var XDG-STATE-HOME = 'XDG_STATE_HOME'
 
 var XDG-VARS = [
     $XDG-CACHE-HOME
@@ -57,6 +58,7 @@ var XDG-VARS = [
     $XDG-BIN-HOME
     $XDG-DATA-HOME
     $XDG-LIB-HOME
+    $XDG-STATE-HOME
 ]
 
 # Evaluates strings from configs that may contain POSIX shell variables.
@@ -127,6 +129,8 @@ fn -fallback [xdgVar &parent=$nil]{
         }
     } elif (==s $XDG-LIB-HOME $xdgVar) {
         path:join $parent 'lib'
+    } elif (==s $XDG-STATE-HOME $xdgVar) {
+        path:join $parent 'state'
     } else {
         fail 'Invalid var: '$xdgVar
     }
@@ -161,6 +165,7 @@ fn get [xdgVar]{
         $XDG-BIN-HOME
         $XDG-DATA-HOME
         $XDG-LIB-HOME
+        $XDG-STATE-HOME
     ]
     try {
         get-var $xdgVar
@@ -247,6 +252,10 @@ fn data-home {
 
 fn lib-home {
     get $XDG-PREFIX-HOME
+}
+
+fn state-home {
+    get $XDG-STATE-HOME
 }
 
 fn populate-env {
