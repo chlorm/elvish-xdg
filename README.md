@@ -4,8 +4,8 @@
 
 ```elvish
 epm:install github.com/chlorm/elvish-xdg
-use github.com/chlorm/elvish-xdg/xdg
+use github.com/chlorm/elvish-xdg/xdg-dirs
 
-xdg:get-dir 'XDG_CONFIG_HOME'
-xdg:populate-env-vars
+xdg-dirs:get 'XDG_CONFIG_HOME'
+xdg:populate-env
 ```
