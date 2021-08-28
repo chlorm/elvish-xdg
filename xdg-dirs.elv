@@ -189,6 +189,62 @@ fn get [xdgVar]{
     }
 }
 
+fn cache-home {
+    get $XDG-CACHE-HOME
+}
+
+fn config-home {
+    get $XDG-CONFIG-HOME
+}
+
+fn desktop-dir {
+    get $XDG-DESKTOP-DIR
+}
+
+fn download-dir {
+    get $XDG-DOWNLOAD-DIR
+}
+
+fn music-dir {
+    get $XDG-MUSIC-DIR
+}
+
+fn pictures-dir {
+    get $XDG-PICTURES-DIR
+}
+
+fn publicshare-dir {
+    get $XDG-PUBLICSHARE-DIR
+}
+
+fn runtime-dir {
+    get $XDG-RUNTIME-DIR
+}
+
+fn templates-dir {
+    get $XDG-TEMPLATES-DIR
+}
+
+fn videos-dir {
+    get $XDG-VIDEOS-DIR
+}
+
+fn prefix-home {
+    get $XDG-PREFIX-HOME
+}
+
+fn bin-home {
+    get $XDG-BIN-HOME
+}
+
+fn data-home {
+    get $XDG-DATA-HOME
+}
+
+fn lib-home {
+    get $XDG-PREFIX-HOME
+}
+
 fn populate-env {
     if $platform:is-windows {
         # HOME is not set on Windows.
