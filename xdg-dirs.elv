@@ -90,7 +90,7 @@ fn -get-dir-from-config [config var]{
 # Accepts an XDG environment variable (e.g. XDG_CACHE_HOME).
 # This tests for xdg values in the following order.
 # Environment variable -> user config -> system config -> fallback
-fn get-dir [xdgVar]{
+fn get [xdgVar]{
     try {
         get-env $xdgVar
     } except _ {
@@ -130,7 +130,7 @@ fn get-dir [xdgVar]{
     }
 }
 
-fn populate-env-vars {
+fn populate-env {
     for i [ (keys $XDG-VARS) ] {
         try {
             var _ = (!=s (get-env $i) '')
