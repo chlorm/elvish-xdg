@@ -120,17 +120,17 @@ fn -fallback [xdgVar &parent=$nil]{
     } elif (==s $XDG-BIN-HOME $xdgVar) {
          path:join $parent 'bin'
     } elif (==s $XDG-DATA-HOME $xdgVar) {
+        path:join $parent 'share'
+    } elif (==s $XDG-LIB-HOME $xdgVar) {
+        path:join $parent 'lib'
+    } elif (==s $XDG-STATE-HOME $xdgVar) {
         if $platform:is-windows {
             get-env 'LOCALAPPDATA'
         } elif (==s $platform:os $darwin) {
             path:join $HOME 'Library' 'Application Support'
         } else {
-            path:join $parent 'share'
+            path:join $parent 'state'
         }
-    } elif (==s $XDG-LIB-HOME $xdgVar) {
-        path:join $parent 'lib'
-    } elif (==s $XDG-STATE-HOME $xdgVar) {
-        path:join $parent 'state'
     } else {
         fail 'Invalid var: '$xdgVar
     }
