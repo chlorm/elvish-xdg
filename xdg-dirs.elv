@@ -118,7 +118,7 @@ fn -fallback [xdgVar &parent=$nil]{
     } elif (==s $XDG-PREFIX-HOME $xdgVar) {
         path:join $HOME '.local'
     } elif (==s $XDG-BIN-HOME $xdgVar) {
-         path:join $parent 'bin'
+        path:join $parent 'bin'
     } elif (==s $XDG-DATA-HOME $xdgVar) {
         path:join $parent 'share'
     } elif (==s $XDG-LIB-HOME $xdgVar) {
