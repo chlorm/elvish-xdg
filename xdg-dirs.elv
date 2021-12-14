@@ -62,7 +62,7 @@ var XDG-VARS = [
 ]
 
 # Evaluates strings from configs that may contain POSIX shell variables.
-fn -get-dir-from-config [config var]{
+fn -get-dir-from-config {|config var|
     var m = $nil
     for i [ (io:cat $config) ] {
         if (re:match '^'$var'.*' $i) {
@@ -76,7 +76,7 @@ fn -get-dir-from-config [config var]{
 }
 
 # This is to avoid generating all paths when the module is invoked.
-fn -fallback [xdgVar &parent=$nil]{
+fn -fallback {|xdgVar &parent=$nil|
     var darwin = 'darwin'
     var HOME = (path:home)
 
@@ -136,11 +136,11 @@ fn -fallback [xdgVar &parent=$nil]{
     }
 }
 
-fn get-var [var]{
+fn get-var {|var|
     get-env $var
 }
 
-fn get-config-user [var]{
+fn get-config-user {|var|
     # Always try XDG_CONFIG_HOME when loading user config.
     var configDir = (-fallback $XDG-CACHE-HOME)
     try {
@@ -151,7 +151,7 @@ fn get-config-user [var]{
     -get-dir-from-config (path:join $configDir 'user-dirs.dirs') $var
 }
 
-fn get-config-system [var]{
+fn get-config-system {|var|
     # FIXME: try XDG_CONFIG_DIRS here
     -get-dir-from-config ^
         $E:ROOT'/etc/xdg/user-dirs.defaults' $var
@@ -160,7 +160,7 @@ fn get-config-system [var]{
 # Accepts an XDG environment variable (e.g. XDG_CACHE_HOME).
 # This tests for xdg values in the following order.
 # Environment variable -> user config -> system config -> fallback
-fn get [xdgVar]{
+fn get {|xdgVar|
     var xdgPrefixChild = [
         $XDG-BIN-HOME
         $XDG-DATA-HOME
