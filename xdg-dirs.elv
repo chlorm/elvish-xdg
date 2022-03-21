@@ -145,7 +145,7 @@ fn get-config-user {|var|
     var configDir = (-fallback $XDG-CACHE-HOME)
     try {
         set configDir = (get-var $XDG-CONFIG-HOME)
-    } except _ {
+    } catch _ {
         # Ignore
     }
     -get-dir-from-config (path:join $configDir 'user-dirs.dirs') $var
@@ -169,7 +169,7 @@ fn get {|xdgVar|
     ]
     try {
         get-var $xdgVar
-    } except _ {
+    } catch _ {
         # Never setup XDG_RUNTIME_DIR from configs if the OS fails to
         # provide it.
         if (==s $xdgVar $XDG-RUNTIME-DIR) {
@@ -177,17 +177,17 @@ fn get {|xdgVar|
                 # This will automatically create the directory and set
                 # permissions.
                 tmpfs:get-user
-            } except _ {
+            } catch _ {
                 put (-fallback $XDG-CACHE-HOME)
             }
             return
         }
         try {
             get-config-user $xdgVar
-        } except _ {
+        } catch _ {
             try {
                 get-config-system $xdgVar
-            } except _ {
+            } catch _ {
                 if (has-value $xdgPrefixChild $xdgVar) {
                     put (-fallback &parent=(get $XDG-PREFIX-HOME) $xdgVar)
                 } else {
@@ -266,7 +266,7 @@ fn populate-env {
     for i $XDG-VARS {
         try {
             var _ = (!=s (get-env $i) '')
-        } except _ {
+        } catch _ {
             set-env $i (get $i)
         }
     }
