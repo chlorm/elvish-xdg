@@ -13,11 +13,11 @@
 # limitations under the License.
 
 
-use platform
 use re
 use github.com/chlorm/elvish-stl/io
 use github.com/chlorm/elvish-stl/os
 use github.com/chlorm/elvish-stl/path
+use github.com/chlorm/elvish-stl/platform
 use github.com/chlorm/elvish-stl/regex
 use github.com/chlorm/elvish-stl/wrap
 use github.com/chlorm/elvish-tmpfs/tmpfs
@@ -83,7 +83,7 @@ fn -fallback {|xdgVar &parent=$nil|
     if (==s $XDG-CACHE-HOME $xdgVar) {
         if $platform:is-windows {
             get-env 'TEMP'
-        } elif (==s $platform:os $darwin) {
+        } elif $platform:is-darwin {
             path:join $HOME 'Library' 'Caches'
         } else {
             path:join $HOME '.cache'
@@ -91,7 +91,7 @@ fn -fallback {|xdgVar &parent=$nil|
     } elif (==s $XDG-CONFIG-HOME $xdgVar) {
         if $platform:is-windows {
             get-env 'APPDATA'
-        } elif (==s $platform:os $darwin) {
+        } elif $platform:is-darwin {
             path:join $HOME 'Library' 'Preferences'
         } else {
             path:join $HOME '.config'
@@ -126,7 +126,7 @@ fn -fallback {|xdgVar &parent=$nil|
     } elif (==s $XDG-STATE-HOME $xdgVar) {
         if $platform:is-windows {
             get-env 'LOCALAPPDATA'
-        } elif (==s $platform:os $darwin) {
+        } elif $platform:is-darwin {
             path:join $HOME 'Library' 'Application Support'
         } else {
             path:join $parent 'state'
