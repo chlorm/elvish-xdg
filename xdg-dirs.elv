@@ -14,12 +14,12 @@
 
 
 use re
+use github.com/chlorm/elvish-stl/exec
 use github.com/chlorm/elvish-stl/io
 use github.com/chlorm/elvish-stl/os
 use github.com/chlorm/elvish-stl/path
 use github.com/chlorm/elvish-stl/platform
 use github.com/chlorm/elvish-stl/regex
-use github.com/chlorm/elvish-stl/wrap
 use github.com/chlorm/elvish-tmpfs/tmpfs
 
 
@@ -72,7 +72,7 @@ fn -get-dir-from-config {|config var|
     if (eq $m $nil) {
         fail 'no match in config'
     }
-    wrap:cmd-out 'sh' '-c' '. '$config' && eval echo '$m
+    exec:cmd-out 'sh' '-c' '. '$config' && eval echo '$m
 }
 
 # This is to avoid generating all paths when the module is invoked.
