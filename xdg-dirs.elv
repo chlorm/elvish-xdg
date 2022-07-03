@@ -179,7 +179,7 @@ fn get {|xdgVar|
                 # permissions.
                 tmpfs:get-user
             } catch _ {
-                put (-fallback $XDG-CACHE-HOME)
+                -fallback $XDG-CACHE-HOME
             }
             return
         }
@@ -190,9 +190,9 @@ fn get {|xdgVar|
                 get-config-system $xdgVar
             } catch _ {
                 if (list:has $xdgPrefixChild $xdgVar) {
-                    put (-fallback &parent=(get $XDG-PREFIX-HOME) $xdgVar)
+                    -fallback &parent=(get $XDG-PREFIX-HOME) $xdgVar
                 } else {
-                    put (-fallback $xdgVar)
+                    -fallback $xdgVar
                 }
             }
         }
