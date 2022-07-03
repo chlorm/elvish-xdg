@@ -13,13 +13,13 @@
 # limitations under the License.
 
 
-use re
+use github.com/chlorm/elvish-stl/env
 use github.com/chlorm/elvish-stl/exec
 use github.com/chlorm/elvish-stl/io
 use github.com/chlorm/elvish-stl/os
 use github.com/chlorm/elvish-stl/path
 use github.com/chlorm/elvish-stl/platform
-use github.com/chlorm/elvish-stl/regex
+use github.com/chlorm/elvish-stl/re
 use github.com/chlorm/elvish-tmpfs/tmpfs
 
 
@@ -66,7 +66,7 @@ fn -get-dir-from-config {|config var|
     var m = $nil
     for i [ (io:cat $config) ] {
         if (re:match '^'$var'.*' $i) {
-            set m = (regex:find $var'=(.*)' $i)
+            set m = (re:find $var'=(.*)' $i)
         }
     }
     if (eq $m $nil) {
@@ -82,7 +82,7 @@ fn -fallback {|xdgVar &parent=$nil|
 
     if (==s $XDG-CACHE-HOME $xdgVar) {
         if $platform:is-windows {
-            get-env 'TEMP'
+            env:get 'TEMP'
         } elif $platform:is-darwin {
             path:join $HOME 'Library' 'Caches'
         } else {
@@ -90,7 +90,7 @@ fn -fallback {|xdgVar &parent=$nil|
         }
     } elif (==s $XDG-CONFIG-HOME $xdgVar) {
         if $platform:is-windows {
-            get-env 'APPDATA'
+            env:get 'APPDATA'
         } elif $platform:is-darwin {
             path:join $HOME 'Library' 'Preferences'
         } else {
@@ -125,19 +125,20 @@ fn -fallback {|xdgVar &parent=$nil|
         path:join $parent 'lib'
     } elif (==s $XDG-STATE-HOME $xdgVar) {
         if $platform:is-windows {
-            get-env 'LOCALAPPDATA'
+            env:get 'LOCALAPPDATA'
         } elif $platform:is-darwin {
             path:join $HOME 'Library' 'Application Support'
         } else {
             path:join $parent 'state'
         }
     } else {
-        fail 'Invalid var: '$xdgVar
+        var err = 'Invalid var: '$xdgVar
+        fail $err
     }
 }
 
 fn get-var {|var|
-    get-env $var
+    env:get $var
 }
 
 fn get-config-user {|var|
@@ -188,7 +189,7 @@ fn get {|xdgVar|
             try {
                 get-config-system $xdgVar
             } catch _ {
-                if (has-value $xdgPrefixChild $xdgVar) {
+                if (list:has $xdgPrefixChild $xdgVar) {
                     put (-fallback &parent=(get $XDG-PREFIX-HOME) $xdgVar)
                 } else {
                     put (-fallback $xdgVar)
@@ -261,13 +262,13 @@ fn state-home {
 fn populate-env {
     if $platform:is-windows {
         # HOME is not set on Windows.
-        set-env 'HOME' (path:home)
+       env:set 'HOME' (path:home)
     }
     for i $XDG-VARS {
         try {
-            var _ = (!=s (get-env $i) '')
+            var _ = (!=s (env:get $i) '')
         } catch _ {
-            set-env $i (get $i)
+            env:set $i (get $i)
         }
     }
 }
