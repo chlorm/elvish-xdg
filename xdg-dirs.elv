@@ -163,7 +163,7 @@ fn get-config-system {|var|
         var v = $nil
         for i [ (str:split $env:DELIMITER $t) ] {
             # FIXME: Look for the correct filenames
-            set v = (-get-dir-from-config (path:join $i 'user-dirs.defaults'))
+            set v = (-get-dir-from-config (path:join $i 'user-dirs.defaults') $var)
             if (not (eq $v $nil)) {
                 put $v
                 return
