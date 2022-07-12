@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2021, Cody Opel <cwopel@chlorm.net>
+# Copyright (c) 2018-2022, Cody Opel <cwopel@chlorm.net>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ use github.com/chlorm/elvish-stl/os
 use github.com/chlorm/elvish-stl/path
 use github.com/chlorm/elvish-stl/platform
 use github.com/chlorm/elvish-stl/re
+use github.com/chlorm/elvish-stl/str
 use github.com/chlorm/elvish-tmpfs/tmpfs
 
 
@@ -42,6 +43,8 @@ var XDG-BIN-HOME = 'XDG_BIN_HOME'
 var XDG-DATA-HOME = 'XDG_DATA_HOME'
 var XDG-LIB-HOME = 'XDG_LIB_HOME'
 var XDG-STATE-HOME = 'XDG_STATE_HOME'
+# System search path
+var XDG-CONFIG-DIRS = 'XDG_CONFIG_DIRS'
 
 var XDG-VARS = [
     $XDG-CACHE-HOME
@@ -71,7 +74,7 @@ fn -get-dir-from-config {|config var|
         }
     }
     if (eq $m $nil) {
-        fail 'no match in config'
+        return
     }
     exec:cmd-out 'sh' '-c' '. '$config' && eval echo '$m
 }
@@ -138,25 +141,39 @@ fn -fallback {|xdgVar &parent=$nil|
     }
 }
 
-fn get-var {|var|
-    env:get $var
-}
-
 fn get-config-user {|var|
     # Always try XDG_CONFIG_HOME when loading user config.
     var configDir = (-fallback $XDG-CACHE-HOME)
     try {
-        set configDir = (get-var $XDG-CONFIG-HOME)
+        set configDir = (env:get $XDG-CONFIG-HOME)
     } catch _ {
         # Ignore
     }
-    -get-dir-from-config (path:join $configDir 'user-dirs.dirs') $var
+    var v = $nil
+    set v = (-get-dir-from-config (path:join $configDir 'user-dirs.dirs') $var)
+    if (eq $v $nil) {
+        fail
+    }
+    put $v
 }
 
 fn get-config-system {|var|
-    # FIXME: try XDG_CONFIG_DIRS here
-    -get-dir-from-config ^
-        $E:ROOT'/etc/xdg/user-dirs.defaults' $var
+    try {
+        var t = (env:get $XDG-CONFIG-DIRS)
+        var v = $nil
+        for i [ (str:split $env:DELIMITER $t) ] {
+            # FIXME: Look for the correct filenames
+            set v = (-get-dir-from-config (path:join $i 'user-dirs.defaults'))
+            if (not (eq $v $nil)) {
+                put $v
+                return
+            }
+        }
+        fail
+    } catch _ {
+        -get-dir-from-config ^
+            $E:ROOT'/etc/xdg/user-dirs.defaults' $var
+    }
 }
 
 # Accepts an XDG environment variable (e.g. XDG_CACHE_HOME).
@@ -170,7 +187,7 @@ fn get {|xdgVar|
         $XDG-STATE-HOME
     ]
     try {
-        get-var $xdgVar
+        env:get $xdgVar
     } catch _ {
         # Never setup XDG_RUNTIME_DIR from configs if the OS fails to
         # provide it.
