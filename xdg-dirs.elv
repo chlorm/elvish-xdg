@@ -128,26 +128,26 @@ fn -fallback {|xdgVar &parent=$nil|
 }
 
 fn -get-dir-from-config {|config var|
-    var m = $nil
+    var configVarPath = $nil
     for i [ (io:cat $config) ] {
         if (re:match '^'$var'.*' $i) {
-            set m = (re:find $var'=(.*)' $i)
+            set configVarPath = (re:find $var'=(.*)' $i)
         }
 
+        # System configs allow specifying vars with out XDG_ _DIR
         if (str:has-suffix $var '_DIR') {
-            var v = (re:find '^XDG_([A-Z]+)_DIR$' $var)
-            if (re:match '^'$v'.*' $i) {
-                set m = (re:find $v'=(.*)' $i)
+            var varNoPrefixSuffix = (re:find '^XDG_([A-Z]+)_DIR$' $var)
+            if (re:match '^'$varNoPrefixSuffix'.*' $i) {
+                set configVarPath = (re:find $varNoPrefixSuffix'r=(.*)' $i)
             }
         }
     }
-    if (eq $m $nil) {
+    if (eq $configVarPath $nil) {
         fail
     }
-    put $m
+    put $configVarPath
 }
 
-# Evaluates strings from configs that may contain POSIX shell variables.
 fn get-config-user {|var|
     # Always try XDG_CONFIG_HOME when loading user config.
     var configDir = (-fallback $XDG-CACHE-HOME)
@@ -156,17 +156,18 @@ fn get-config-user {|var|
     } catch _ {
         # Ignore
     }
-    var v = $nil
+    var configVarPath = $nil
     var config = (path:join $configDir 'user-dirs.dirs')
-    set v = (-get-dir-from-config $config $var)
-    if (eq $v $nil) {
+    set configVarPath = (-get-dir-from-config $config $var)
+    if (eq $configVarPath $nil) {
         fail
     }
-    put (exec:cmd-out 'sh' '-c' '. '$config' && eval echo '$v)
+    # Evaluates strings from configs that may contain POSIX shell variables.
+    put (exec:cmd-out 'sh' '-c' '. '$config' && eval echo '$configVarPath)
 }
 
 fn get-config-system {|var|
-    var f = $nil
+    var configVarPath = $nil
     try {
         var t = (env:get $XDG-CONFIG-DIRS)
         var v = $nil
@@ -175,21 +176,24 @@ fn get-config-system {|var|
             try {
                 set v = (-get-dir-from-config (path:join $i 'user-dirs.defaults') $var)
                 if (not (eq $v $nil)) {
-                    set f = $v
+                    set configVarPath = $v
                     break
                 }
             } catch _ { }
         }
         fail
     } catch _ {
-        set f = (-get-dir-from-config $E:ROOT'/etc/xdg/user-dirs.defaults' $var)
+        set configVarPath = (
+            -get-dir-from-config $E:ROOT'/etc/xdg/user-dirs.defaults' $var
+        )
     }
-    put (path:join (path:home) $f)
+    # Paths in system configs are relative to a user home directory.
+    put (path:join (path:home) $configVarPath)
 }
 
 # Accepts an XDG environment variable (e.g. XDG_CACHE_HOME).
 # This tests for xdg values in the following order.
-# Environment variable -> user config -> system config -> fallback
+# Environment variable -> user config -> system config(s) -> fallback
 fn get {|xdgVar|
     var xdgPrefixChild = [
         $XDG-BIN-HOME
