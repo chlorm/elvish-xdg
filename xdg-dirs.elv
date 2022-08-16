@@ -25,6 +25,7 @@ use github.com/chlorm/elvish-stl/str
 use github.com/chlorm/elvish-tmpfs/tmpfs
 
 
+var HOME = (path:home)
 var XDG-CACHE-HOME = 'XDG_CACHE_HOME'
 var XDG-CONFIG-HOME = 'XDG_CONFIG_HOME'
 var XDG-DESKTOP-DIR = 'XDG_DESKTOP_DIR'
@@ -65,64 +66,117 @@ var XDG-VARS = [
     $XDG-STATE-HOME
 ]
 
+fn -fallback-cache-home {
+    if $platform:is-windows {
+        env:get 'TEMP'
+    } elif $platform:is-darwin {
+        path:join $HOME 'Library' 'Caches'
+    } else {
+        path:join $HOME '.cache'
+    }
+}
+
+fn -fallback-config-home {
+    if $platform:is-windows {
+        env:get 'APPDATA'
+    } elif $platform:is-darwin {
+        path:join $HOME 'Library' 'Preferences'
+    } else {
+        path:join $HOME '.config'
+    }
+}
+
+fn -fallback-desktop-dir {
+    path:join $HOME 'Desktop'
+}
+
+fn -fallback-documents-dir {
+    path:join $HOME 'Documents'
+}
+
+fn -fallback-download-dir {
+    path:join $HOME 'Downloads'
+}
+
+fn -fallback-music-dir {
+    path:join $HOME 'Music'
+}
+
+fn -fallback-pictures-dir {
+    path:join $HOME 'Pictures'
+}
+
+fn -fallback-publicshare-dir {
+    path:join $HOME 'Public'
+}
+
+fn -fallback-runtime-dir {
+    put $nil
+}
+
+fn -fallback-templates-dir {
+    # FIXME: Templates is some kind of hidden symlink on Windows
+    path:join $HOME 'Templates'
+}
+
+fn -fallback-videos-dir {
+    path:join $HOME 'Videos'
+}
+
+fn -fallback-prefix-home {
+    path:join $HOME '.local'
+}
+
+fn -fallback-bin-home {|&parent=(-fallback-prefix-home)|
+    path:join $parent 'bin'
+}
+
+fn -fallback-data-home {|&parent=(-fallback-prefix-home)|
+    path:join $parent 'share'
+}
+
+fn -fallback-lib-home {|&parent=(-fallback-prefix-home)|
+    path:join $parent 'lib'
+}
+
+fn -fallback-state-home {|&parent=(-fallback-prefix-home)|
+    if $platform:is-windows {
+        env:get 'LOCALAPPDATA'
+    } elif $platform:is-darwin {
+        path:join $HOME 'Library' 'Application Support'
+    } else {
+        path:join $parent 'state'
+    }
+}
+
+var -FALLBACK_FUNCS = [&]
+set -FALLBACK_FUNCS[$XDG-CACHE-HOME] = $-fallback-cache-home~
+set -FALLBACK_FUNCS[$XDG-CONFIG-HOME] = $-fallback-config-home~
+set -FALLBACK_FUNCS[$XDG-DESKTOP-DIR] = $-fallback-desktop-dir~
+set -FALLBACK_FUNCS[$XDG-DOCUMENTS-DIR] = $-fallback-documents-dir~
+set -FALLBACK_FUNCS[$XDG-DOWNLOAD-DIR] = $-fallback-download-dir~
+set -FALLBACK_FUNCS[$XDG-MUSIC-DIR] = $-fallback-music-dir~
+set -FALLBACK_FUNCS[$XDG-PICTURES-DIR] = $-fallback-pictures-dir~
+set -FALLBACK_FUNCS[$XDG-PUBLICSHARE-DIR] = $-fallback-publicshare-dir~
+set -FALLBACK_FUNCS[$XDG-RUNTIME-DIR] = $-fallback-runtime-dir~
+set -FALLBACK_FUNCS[$XDG-TEMPLATES-DIR] = $-fallback-templates-dir~
+set -FALLBACK_FUNCS[$XDG-VIDEOS-DIR] = $-fallback-videos-dir~
+set -FALLBACK_FUNCS[$XDG-PREFIX-HOME] = $-fallback-prefix-home~
+set -FALLBACK_FUNCS[$XDG-BIN-HOME] = $-fallback-bin-home~
+set -FALLBACK_FUNCS[$XDG-DATA-HOME] = $-fallback-data-home~
+set -FALLBACK_FUNCS[$XDG-LIB-HOME] = $-fallback-lib-home~
+set -FALLBACK_FUNCS[$XDG-STATE-HOME] = $-fallback-state-home~
+
 # This is to avoid generating all paths when the module is invoked.
 fn -fallback {|xdgVar &parent=$nil|
-    var darwin = 'darwin'
-    var HOME = (path:home)
-
-    if (==s $XDG-CACHE-HOME $xdgVar) {
-        if $platform:is-windows {
-            env:get 'TEMP'
-        } elif $platform:is-darwin {
-            path:join $HOME 'Library' 'Caches'
+    try {
+        if (eq $parent $nil) {
+            $-FALLBACK_FUNCS[$xdgVar]
         } else {
-            path:join $HOME '.cache'
+            $-FALLBACK_FUNCS[$xdgVar] &parent=$parent
         }
-    } elif (==s $XDG-CONFIG-HOME $xdgVar) {
-        if $platform:is-windows {
-            env:get 'APPDATA'
-        } elif $platform:is-darwin {
-            path:join $HOME 'Library' 'Preferences'
-        } else {
-            path:join $HOME '.config'
-        }
-    } elif (==s $XDG-DESKTOP-DIR $xdgVar) {
-        path:join $HOME 'Desktop'
-    } elif (==s $XDG-DOCUMENTS-DIR $xdgVar) {
-        path:join $HOME 'Documents'
-    } elif (==s $XDG-DOWNLOAD-DIR $xdgVar) {
-        path:join $HOME 'Downloads'
-    } elif (==s $XDG-MUSIC-DIR $xdgVar) {
-        path:join $HOME 'Music'
-    } elif (==s $XDG-PICTURES-DIR $xdgVar) {
-        path:join $HOME 'Pictures'
-    } elif (==s $XDG-PUBLICSHARE-DIR $xdgVar) {
-        path:join $HOME 'Public'
-    } elif (==s $XDG-RUNTIME-DIR $xdgVar) {
-        put $nil
-    } elif (==s $XDG-TEMPLATES-DIR $xdgVar) {
-        # FIXME: Templates is some kind of hidden symlink on Windows
-        path:join $HOME 'Templates'
-    } elif (==s $XDG-VIDEOS-DIR $xdgVar) {
-        path:join $HOME 'Videos'
-    } elif (==s $XDG-PREFIX-HOME $xdgVar) {
-        path:join $HOME '.local'
-    } elif (==s $XDG-BIN-HOME $xdgVar) {
-        path:join $parent 'bin'
-    } elif (==s $XDG-DATA-HOME $xdgVar) {
-        path:join $parent 'share'
-    } elif (==s $XDG-LIB-HOME $xdgVar) {
-        path:join $parent 'lib'
-    } elif (==s $XDG-STATE-HOME $xdgVar) {
-        if $platform:is-windows {
-            env:get 'LOCALAPPDATA'
-        } elif $platform:is-darwin {
-            path:join $HOME 'Library' 'Application Support'
-        } else {
-            path:join $parent 'state'
-        }
-    } else {
-        var err = 'Invalid var: '$xdgVar
+    } catch e {
+        var err = 'Invalid var: '$xdgVar"\n\n"(to-string $e)
         fail $err
     }
 }
