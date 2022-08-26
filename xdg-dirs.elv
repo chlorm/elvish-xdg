@@ -69,21 +69,27 @@ var XDG-VARS = [
 fn -fallback-cache-home {
     if $platform:is-windows {
         env:get 'TEMP'
-    } elif $platform:is-darwin {
-        path:join $HOME 'Library' 'Caches'
-    } else {
-        path:join $HOME '.cache'
+        return
     }
+    if $platform:is-darwin {
+        path:join $HOME 'Library' 'Caches'
+        return
+    }
+
+    path:join $HOME '.cache'
 }
 
 fn -fallback-config-home {
     if $platform:is-windows {
         env:get 'APPDATA'
-    } elif $platform:is-darwin {
-        path:join $HOME 'Library' 'Preferences'
-    } else {
-        path:join $HOME '.config'
+        return
     }
+    if $platform:is-darwin {
+        path:join $HOME 'Library' 'Preferences'
+        return
+    }
+
+    path:join $HOME '.config'
 }
 
 fn -fallback-desktop-dir {
@@ -142,11 +148,14 @@ fn -fallback-lib-home {|&parent=(-fallback-prefix-home)|
 fn -fallback-state-home {|&parent=(-fallback-prefix-home)|
     if $platform:is-windows {
         env:get 'LOCALAPPDATA'
-    } elif $platform:is-darwin {
-        path:join $HOME 'Library' 'Application Support'
-    } else {
-        path:join $parent 'state'
+        return
     }
+    if $platform:is-darwin {
+        path:join $HOME 'Library' 'Application Support'
+        return
+    }
+
+    path:join $parent 'state'
 }
 
 var -FALLBACK_FUNCS = [&]
@@ -172,9 +181,10 @@ fn -fallback {|xdgVar &parent=$nil|
     try {
         if (eq $parent $nil) {
             $-FALLBACK_FUNCS[$xdgVar]
-        } else {
-            $-FALLBACK_FUNCS[$xdgVar] &parent=$parent
+            return
         }
+
+        $-FALLBACK_FUNCS[$xdgVar] &parent=$parent
     } catch e {
         var err = 'Invalid var: '$xdgVar"\n\n"(to-string $e)
         fail $err
@@ -207,9 +217,7 @@ fn get-config-user {|var|
     var configDir = (-fallback $XDG-CACHE-HOME)
     try {
         set configDir = (env:get $XDG-CONFIG-HOME)
-    } catch _ {
-        # Ignore
-    }
+    } catch _ { }
     var configVarPath = $nil
     var config = (path:join $configDir 'user-dirs.dirs')
     set configVarPath = (-get-dir-from-config $config $var)
