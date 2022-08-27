@@ -181,10 +181,9 @@ fn -fallback {|xdgVar &parent=$nil|
     try {
         if (eq $parent $nil) {
             $-FALLBACK_FUNCS[$xdgVar]
-            return
+        } else {
+            $-FALLBACK_FUNCS[$xdgVar] &parent=$parent
         }
-
-        $-FALLBACK_FUNCS[$xdgVar] &parent=$parent
     } catch e {
         var err = 'Invalid var: '$xdgVar"\n\n"(to-string $e)
         fail $err
