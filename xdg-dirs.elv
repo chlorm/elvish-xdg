@@ -130,18 +130,38 @@ fn -fallback-videos-dir {
 }
 
 fn -fallback-prefix-home {
+    if $platform:is-windows {
+        env:get 'LOCALAPPDATA'
+        return
+    }
+
     path:join $HOME '.local'
 }
 
 fn -fallback-bin-home {|&parent=(-fallback-prefix-home)|
+    if $platform:is-windows {
+        path:join $parent 'Microsoft' 'WindowsApps'
+        return
+    }
+
     path:join $parent 'bin'
 }
 
 fn -fallback-data-home {|&parent=(-fallback-prefix-home)|
+    if $platform:is-windows {
+        env:get 'LOCALAPPDATA'
+        return
+    }
+
     path:join $parent 'share'
 }
 
 fn -fallback-lib-home {|&parent=(-fallback-prefix-home)|
+    if $platform:is-windows {
+        path:join $parent 'Programs'
+        return
+    }
+
     path:join $parent 'lib'
 }
 
@@ -150,6 +170,7 @@ fn -fallback-state-home {|&parent=(-fallback-prefix-home)|
         env:get 'LOCALAPPDATA'
         return
     }
+
     if $platform:is-darwin {
         path:join $HOME 'Library' 'Application Support'
         return
