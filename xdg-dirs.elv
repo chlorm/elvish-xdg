@@ -233,6 +233,10 @@ fn -get-dir-from-config {|config var|
 }
 
 fn get-config-user {|var|
+    if $platform:is-windows {
+        fail
+    }
+
     # Always try XDG_CONFIG_HOME when loading user config.
     var configDir = (-fallback $XDG-CACHE-HOME)
     try {
