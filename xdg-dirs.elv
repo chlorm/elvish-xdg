@@ -213,7 +213,7 @@ fn -fallback {|xdgVar &parent=$nil|
 
 fn -get-dir-from-config {|config var|
     var configVarPath = $nil
-    for i [ (io:cat $config) ] {
+    for i [ (str:to-nonempty-lines (io:read $config)) ] {
         if (re:match '^'$var'.*' $i) {
             set configVarPath = (re:find $var'=(.*)' $i)
         }
